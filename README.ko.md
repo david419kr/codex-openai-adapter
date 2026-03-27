@@ -122,6 +122,12 @@ Ollama 호환:
 
 ## 모델 별칭
 
+모델 목록은 Codex backend에서 동적으로 불러옵니다. 따라서 `gpt-5.4`와 `gpt-5.3-codex` 외의 다른 모델도 나타날 수 있으며, `/models`, `/v1/models`, `/api/tags`에 표시되는 정확한 모델명을 입력하면 사용할 수 있는 경우가 많습니다.
+
+추후 Codex 서버에 새 모델이 추가되면, 별도의 어댑터 업데이트 없이 여기서 바로 노출되고 사용할 수 있게 될 수도 있습니다.
+
+호환성을 위해, 어댑터는 동적으로 발견된 모든 base model에 대해 `-low`, `-medium`, `-high`, `-xhigh` suffix alias도 함께 생성합니다. 다만 이 프로젝트는 기본적으로 `gpt-5.4`와 `gpt-5.3-codex`를 중심으로 설계되고 테스트되었기 때문에, 그 외 모델의 동작은 best-effort 수준이며 보장되지 않습니다. 특히 `reasoning_effort`, `think`, `temperature` 및 관련 호환성 동작은 비보장입니다. suffix alias 역시 `gpt-5.4`와 `gpt-5.3-codex`에서만 신뢰 가능한 것으로 보는 편이 좋습니다.
+
 클라이언트가 reasoning 제어를 명시적으로 지원한다면:
 
 - OpenAI 호환 라우트에서는 `reasoning_effort` 사용
@@ -137,7 +143,7 @@ Ollama 호환:
 - `gpt-5.4-high`
 - `gpt-5.3-codex-xhigh`
 
-노출되는 모델명:
+상대적으로 검증된 모델명:
 
 - `gpt-5.4`
 - `gpt-5.4-low`
@@ -154,7 +160,9 @@ Ollama 호환:
 
 - suffix가 없는 `gpt-5.4`와 `gpt-5.3-codex`는 suffix 기반 reasoning level을 강제하지 않는 base 모델입니다
 - suffix가 붙은 variant는 `low`, `medium`, `high`, `xhigh`를 강제합니다
-- `gpt-5.4-none` 별칭은 없습니다. `none`을 명시적으로 사용해야 한다면 OpenAI 호환 라우트에서는 `reasoning_effort: "none"`을 보내고, Ollama 호환 라우트에서는 `think: false` 또는 `think: "none"`을 보내면 됩니다
+- `*-none` suffix 별칭은 없습니다. `none`을 명시적으로 사용해야 한다면 OpenAI 호환 라우트에서는 `reasoning_effort: "none"`을 보내고, Ollama 호환 라우트에서는 `think: false` 또는 `think: "none"`을 보내면 됩니다
+- 현재 노출되는 전체 모델 목록은 동적으로 바뀔 수 있으므로, README의 정적 목록 대신 `/models`, `/v1/models`, `/api/tags`에서 직접 확인하는 것이 맞습니다
+- `/models`, `/v1/models`, `/api/tags`의 raw JSON이 보기 불편하다면, `/chat-test`를 열어서 현재 모델 목록을 간단한 GUI로 더 쉽게 확인할 수 있습니다
 
 ## 빠른 예시
 
@@ -233,4 +241,4 @@ uv run --extra dev pytest
 ## 참고
 
 - Ollama 호환 요청은 선택적 `think` 파라미터를 받습니다: `true`, `false`, `none`, `low`, `medium`, `high`, `xhigh`. `true`는 `medium`으로 매핑되고, `false`와 `none`은 동일하게 처리됩니다.
-- `temperature`는 effective reasoning이 `none`일 때의 `gpt-5.4` base-model 요청에 한해서만 backend로 전달됩니다.
+- `temperature`는 effective reasoning이 `none`일 때의 `gpt-5.4` base-model 요청에서만 동작 보장을 합니다. 다른 동적 모델들도 현재는 같은 일반 규칙으로 처리되지만, 그 동작은 best-effort이며 보장되지 않습니다.

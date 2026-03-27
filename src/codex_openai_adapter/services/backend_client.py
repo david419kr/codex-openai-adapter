@@ -118,6 +118,57 @@ class BackendClient:
 
         return iterator()
 
+    async def fetch_codex_model_slugs(self, client_version: str) -> list[str]:
+        auth_snapshot = await self._auth_store.snapshot()
+        response = await self._send_model_catalog_request(client_version, auth_snapshot)
+
+        if (
+            response.status_code in {401, 403}
+            and auth_snapshot.tokens is not None
+            and auth_snapshot.tokens.refresh_token
+        ):
+            previous_access_token = auth_snapshot.tokens.access_token
+            auth_snapshot = await self._auth_store.refresh_access_token_if_needed(
+                previous_access_token=previous_access_token,
+                client=self._client,
+                oauth_token_url=self._settings.oauth_token_url,
+                codex_client_id=self._settings.codex_client_id,
+            )
+            response = await self._send_model_catalog_request(client_version, auth_snapshot)
+
+        if response.is_error:
+            log_debug_event(
+                "backend_model_catalog_response",
+                status_code=response.status_code,
+                body=response.text,
+            )
+            raise BackendHTTPError(response.status_code, response.text)
+
+        payload = response.json()
+        models = payload.get("models") if isinstance(payload, dict) else None
+        if not isinstance(models, list):
+            raise BackendHTTPError(response.status_code, "Invalid model catalog response")
+
+        slugs: list[str] = []
+        seen: set[str] = set()
+        for model in models:
+            slug = model.get("slug") if isinstance(model, dict) else None
+            if not isinstance(slug, str) or not slug or slug in seen:
+                continue
+            seen.add(slug)
+            slugs.append(slug)
+
+        if not slugs:
+            raise BackendHTTPError(response.status_code, "Empty model catalog response")
+
+        log_debug_event(
+            "backend_model_catalog_response",
+            status_code=response.status_code,
+            slugs=slugs,
+            client_version=client_version,
+        )
+        return slugs
+
     async def _send(
         self,
         responses_req: ResponsesApiRequest,
@@ -201,3 +252,44 @@ class BackendClient:
             payload=responses_req,
         )
         return await self._client.send(request, stream=True)
+
+    async def _send_model_catalog_request(
+        self,
+        client_version: str,
+        auth_data: AuthData,
+    ) -> httpx.Response:
+        headers = {
+            "Accept": "application/json",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate",
+            "Referer": "https://chatgpt.com/",
+            "Origin": "https://chatgpt.com",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "DNT": "1",
+            "OpenAI-Beta": "responses=experimental",
+            "originator": "codex_cli_rs",
+            "session_id": str(uuid4()),
+        }
+
+        if auth_data.tokens is not None:
+            headers["Authorization"] = f"Bearer {auth_data.tokens.access_token}"
+            headers["chatgpt-account-id"] = auth_data.tokens.account_id
+        elif auth_data.api_key:
+            headers["Authorization"] = f"Bearer {auth_data.api_key}"
+
+        log_debug_event(
+            "backend_model_catalog_request",
+            method="GET",
+            url=self._settings.backend_models_url,
+            client_version=client_version,
+        )
+        return await self._client.get(
+            self._settings.backend_models_url,
+            headers=headers,
+            params={"client_version": client_version},
+            timeout=20.0,
+        )

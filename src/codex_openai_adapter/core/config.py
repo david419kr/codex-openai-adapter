@@ -9,7 +9,10 @@ from typing import Sequence
 DEFAULT_PORT = 8888
 DEFAULT_AUTH_PATH = "~/.codex/auth.json"
 DEFAULT_BACKEND_RESPONSES_URL = "https://chatgpt.com/backend-api/codex/responses"
+DEFAULT_BACKEND_MODELS_URL = "https://chatgpt.com/backend-api/codex/models"
 DEFAULT_OAUTH_TOKEN_URL = "https://auth.openai.com/oauth/token"
+DEFAULT_BACKEND_MODELS_CLIENT_VERSION = "9.9.9"
+DEFAULT_MODEL_CATALOG_TTL_SECONDS = 300.0
 DEFAULT_STREAM_IDLE_HEARTBEAT_SECONDS = 15.0
 OPENAI_CODEX_CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann"
 DEFAULT_SYSTEM_INSTRUCTIONS = (
@@ -74,9 +77,12 @@ class Settings:
     auth_path: Path
     required_client_api_key: str | None
     debug: bool = False
+    model_catalog_ttl_seconds: float = DEFAULT_MODEL_CATALOG_TTL_SECONDS
     stream_idle_heartbeat_seconds: float = DEFAULT_STREAM_IDLE_HEARTBEAT_SECONDS
     project_root: Path = field(default_factory=Path.cwd)
     backend_responses_url: str = DEFAULT_BACKEND_RESPONSES_URL
+    backend_models_url: str = DEFAULT_BACKEND_MODELS_URL
+    backend_models_client_version: str = DEFAULT_BACKEND_MODELS_CLIENT_VERSION
     oauth_token_url: str = DEFAULT_OAUTH_TOKEN_URL
     codex_client_id: str = OPENAI_CODEX_CLIENT_ID
     service_name: str = "codex-openai-proxy"
@@ -106,12 +112,23 @@ class Settings:
         )
         required_client_api_key = normalize_optional(os.getenv("API_KEY"))
         debug = normalize_bool(os.getenv("DEBUG"))
+        model_catalog_ttl_seconds = normalize_float(
+            os.getenv("MODEL_CATALOG_TTL_SECONDS"),
+            DEFAULT_MODEL_CATALOG_TTL_SECONDS,
+        )
         stream_idle_heartbeat_seconds = normalize_float(
             os.getenv("STREAM_IDLE_HEARTBEAT_SECONDS"),
             DEFAULT_STREAM_IDLE_HEARTBEAT_SECONDS,
         )
         backend_responses_url = (
             os.getenv("CODEX_BACKEND_RESPONSES_URL") or DEFAULT_BACKEND_RESPONSES_URL
+        )
+        backend_models_url = (
+            os.getenv("CODEX_BACKEND_MODELS_URL") or DEFAULT_BACKEND_MODELS_URL
+        )
+        backend_models_client_version = (
+            os.getenv("CODEX_BACKEND_MODELS_CLIENT_VERSION")
+            or DEFAULT_BACKEND_MODELS_CLIENT_VERSION
         )
         oauth_token_url = os.getenv("CODEX_OAUTH_TOKEN_URL") or DEFAULT_OAUTH_TOKEN_URL
 
@@ -120,8 +137,11 @@ class Settings:
             auth_path=auth_path,
             required_client_api_key=required_client_api_key,
             debug=debug,
+            model_catalog_ttl_seconds=model_catalog_ttl_seconds,
             stream_idle_heartbeat_seconds=stream_idle_heartbeat_seconds,
             project_root=(cwd or Path.cwd()),
             backend_responses_url=backend_responses_url,
+            backend_models_url=backend_models_url,
+            backend_models_client_version=backend_models_client_version,
             oauth_token_url=oauth_token_url,
         )

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 MODEL_CODEX = "gpt-5.3-codex"
 MODEL_GENERAL = "gpt-5.4"
-SUPPORTED_BASE_MODELS = (MODEL_GENERAL, MODEL_CODEX)
+FALLBACK_BASE_MODELS = (MODEL_GENERAL, MODEL_CODEX)
 REASONING_EFFORTS = ("low", "medium", "high", "xhigh")
-GPT54_REASONING_EFFORTS = ("none", "low", "medium", "high", "xhigh")
+GPT54_STYLE_REASONING_EFFORTS = ("none", "low", "medium", "high", "xhigh")
 OLLAMA_THINK_EFFORTS = ("none", "low", "medium", "high", "xhigh")
 
 
@@ -35,11 +36,9 @@ def normalize_ollama_think(think: bool | str | None) -> str | None:
 
 
 def supported_reasoning_efforts(model: str) -> tuple[str, ...]:
-    if model == MODEL_GENERAL:
-        return GPT54_REASONING_EFFORTS
     if model == MODEL_CODEX:
         return REASONING_EFFORTS
-    return REASONING_EFFORTS
+    return GPT54_STYLE_REASONING_EFFORTS
 
 
 def normalize_reasoning_effort_for_model(model: str, effort: str | None) -> str | None:
@@ -59,17 +58,44 @@ def extract_reasoning_effort_from_value(reasoning: Any) -> str | None:
     return None
 
 
-def resolve_model_alias(model: str) -> tuple[str, str | None]:
-    for base_model in SUPPORTED_BASE_MODELS:
+def normalize_base_models(base_models: Sequence[str] | None = None) -> list[str]:
+    seen: set[str] = set()
+    normalized: list[str] = []
+    for model in base_models or FALLBACK_BASE_MODELS:
+        if model not in seen:
+            seen.add(model)
+            normalized.append(model)
+    return normalized
+
+
+def resolve_model_alias(
+    model: str,
+    base_models: Sequence[str] | None = None,
+) -> tuple[str, str | None]:
+    ordered_base_models = sorted(
+        normalize_base_models(base_models),
+        key=len,
+        reverse=True,
+    )
+
+    for base_model in ordered_base_models:
         if model == base_model:
             return base_model, None
+
+    for base_model in ordered_base_models:
         prefix = f"{base_model}-"
         if model.startswith(prefix):
             effort = model.removeprefix(prefix)
             normalized = normalize_reasoning_effort_for_model(base_model, effort)
             if normalized is not None:
                 return base_model, normalized
+
     return model, None
+
+
+def is_known_model(model: str, base_models: Sequence[str] | None = None) -> bool:
+    backend_model, _ = resolve_model_alias(model, base_models)
+    return backend_model in normalize_base_models(base_models)
 
 
 def merge_reasoning(reasoning: Any, selected_effort: str | None) -> Any:
@@ -90,8 +116,9 @@ def resolve_model_and_reasoning(
     model: str,
     reasoning: Any,
     reasoning_effort: str | None,
+    base_models: Sequence[str] | None = None,
 ) -> tuple[str, Any]:
-    backend_model, model_effort = resolve_model_alias(model)
+    backend_model, model_effort = resolve_model_alias(model, base_models)
     requested_effort = (
         normalize_reasoning_effort_for_model(backend_model, reasoning_effort)
         or normalize_reasoning_effort_for_model(
@@ -108,7 +135,9 @@ def effective_reasoning_is_none(
     backend_model: str,
     reasoning: Any,
 ) -> bool:
-    if request_model != MODEL_GENERAL or backend_model != MODEL_GENERAL:
+    if request_model != backend_model:
+        return False
+    if backend_model == MODEL_CODEX:
         return False
     return (extract_reasoning_effort_from_value(reasoning) or "none") == "none"
 
@@ -124,9 +153,9 @@ def resolve_temperature(
     return temperature
 
 
-def exposed_model_list() -> list[str]:
+def exposed_model_list(base_models: Sequence[str] | None = None) -> list[str]:
     models: list[str] = []
-    for base_model in SUPPORTED_BASE_MODELS:
+    for base_model in normalize_base_models(base_models):
         models.append(base_model)
         models.extend(f"{base_model}-{effort}" for effort in REASONING_EFFORTS)
     return models

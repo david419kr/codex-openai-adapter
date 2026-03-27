@@ -124,6 +124,12 @@ Ollama-compatible:
 
 ## Model Aliases
 
+Model list is loaded dynamically from the Codex backend. Models other than `gpt-5.4` and `gpt-5.3-codex` may also appear and can often be used as long as you specify the exact model name shown by `/models`, `/v1/models`, or `/api/tags`.
+
+If new Codex models are added later on OpenAI Codex server, they may become available here without a separate adapter update.
+
+For compatibility, the adapter also generates `-low`, `-medium`, `-high`, and `-xhigh` suffix aliases for every dynamically discovered base model. However, this project is primarily designed and tested around `gpt-5.4` and `gpt-5.3-codex`, so behavior for other models is best-effort only and is not guaranteed, especially for `reasoning_effort`, `think`, `temperature`, and related compatibility details. The suffix aliases should likewise be considered reliable only for `gpt-5.4` and `gpt-5.3-codex`.
+
 If your client supports explicit reasoning controls:
 
 - use `reasoning_effort` on OpenAI-compatible routes
@@ -139,7 +145,7 @@ Examples:
 - `gpt-5.4-high`
 - `gpt-5.3-codex-xhigh`
 
-Exposed model names:
+Well-tested model names:
 
 - `gpt-5.4`
 - `gpt-5.4-low`
@@ -156,7 +162,9 @@ Notes:
 
 - the suffix-free names `gpt-5.4` and `gpt-5.3-codex` use the base model without forcing a suffix-based reasoning level
 - the suffix variants force `low`, `medium`, `high`, or `xhigh`
-- there is no `gpt-5.4-none` alias; if you need explicit `none`, send `reasoning_effort: "none"` on OpenAI-compatible routes or `think: false` / `think: "none"` on Ollama-compatible routes
+- there is no `*-none` suffix alias; if you need explicit `none`, send `reasoning_effort: "none"` on OpenAI-compatible routes or `think: false` / `think: "none"` on Ollama-compatible routes
+- the full currently exposed model list is dynamic, so check `/models`, `/v1/models`, or `/api/tags` instead of relying on a hardcoded list in this README
+- if the raw JSON from `/models`, `/v1/models`, or `/api/tags` is hard to scan, loading `/chat-test` might be an easier way to inspect the current model list in a simple GUI
 
 ## Quick Examples
 
@@ -235,4 +243,4 @@ uv run --extra dev pytest
 ## Notes
 
 - Ollama-compatible requests accept an optional `think` parameter: `true`, `false`, `none`, `low`, `medium`, `high`, `xhigh`. `true` maps to `medium`, and `false` and `none` are treated the same.
-- `temperature` is only forwarded for `gpt-5.4` base-model requests when effective reasoning is `none`.
+- `temperature` is guaranteed only for `gpt-5.4` base-model requests when effective reasoning is `none`. Other dynamically discovered models currently follow the same general rule on a best-effort basis, but that behavior is not guaranteed.

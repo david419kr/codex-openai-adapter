@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from codex_openai_adapter.api.deps import get_proxy_service, get_settings
+from codex_openai_adapter.api.deps import get_model_catalog, get_proxy_service, get_settings
 from codex_openai_adapter.core.config import Settings
 from codex_openai_adapter.core.debug_trace import (
     finish_debug_request,
@@ -12,7 +12,7 @@ from codex_openai_adapter.core.debug_trace import (
 )
 from codex_openai_adapter.core.errors import ollama_error_response
 from codex_openai_adapter.schemas.ollama import OllamaChatRequest, OllamaGenerateRequest
-from codex_openai_adapter.services.model_resolution import exposed_model_list
+from codex_openai_adapter.services.model_catalog import ModelCatalogService
 from codex_openai_adapter.services.proxy_service import ProxyService
 from codex_openai_adapter.services.streaming_formatter import build_ollama_error_ndjson
 from codex_openai_adapter.services.tool_conversion import convert_chat_tool_calls_to_ollama
@@ -21,7 +21,11 @@ router = APIRouter(tags=["ollama"])
 
 
 @router.get("/api/tags")
-def ollama_tags(settings: Settings = Depends(get_settings)) -> dict[str, object]:
+async def ollama_tags(
+    settings: Settings = Depends(get_settings),
+    model_catalog: ModelCatalogService = Depends(get_model_catalog),
+) -> dict[str, object]:
+    models = await model_catalog.get_exposed_models()
     return {
         "models": [
             {
@@ -39,7 +43,7 @@ def ollama_tags(settings: Settings = Depends(get_settings)) -> dict[str, object]
                     "quantization_level": "unknown",
                 },
             }
-            for model in exposed_model_list()
+            for model in models
         ]
     }
 

@@ -15,22 +15,24 @@ from .core.logging import configure_logging
 from .core.security import is_public_path, unauthorized_response
 from .services.auth_store import AuthStore
 from .services.backend_client import BackendClient
+from .services.model_catalog import ModelCatalogService
 from .services.proxy_service import ProxyService
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     resolved_settings = settings or Settings.from_sources()
     configure_logging(debug=resolved_settings.debug, project_root=resolved_settings.project_root)
+    auth_store = AuthStore(resolved_settings.auth_path)
+    backend_client = BackendClient(resolved_settings, auth_store)
+    model_catalog = ModelCatalogService(resolved_settings, backend_client)
+    proxy_service = ProxyService(resolved_settings, backend_client, model_catalog)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        auth_store = AuthStore(resolved_settings.auth_path)
-        backend_client = BackendClient(resolved_settings, auth_store)
-        proxy_service = ProxyService(resolved_settings, backend_client)
-
         app.state.settings = resolved_settings
         app.state.auth_store = auth_store
         app.state.backend_client = backend_client
+        app.state.model_catalog = model_catalog
         app.state.proxy_service = proxy_service
 
         try:
@@ -44,6 +46,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = resolved_settings
+    app.state.auth_store = auth_store
+    app.state.backend_client = backend_client
+    app.state.model_catalog = model_catalog
+    app.state.proxy_service = proxy_service
 
     app.add_middleware(
         CORSMiddleware,

@@ -31,6 +31,7 @@ from codex_openai_adapter.services.event_parser import (
     parse_backend_sse_text,
     stream_events_from_sse_lines,
 )
+from codex_openai_adapter.services.model_catalog import ModelCatalogService
 from codex_openai_adapter.services.model_resolution import (
     normalize_ollama_think,
     resolve_model_and_reasoning,
@@ -44,15 +45,21 @@ from codex_openai_adapter.services.tool_conversion import (
 
 
 class ProxyService:
-    def __init__(self, settings: Settings, backend_client: BackendClient) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        backend_client: BackendClient,
+        model_catalog: ModelCatalogService,
+    ) -> None:
         self._settings = settings
         self._backend_client = backend_client
+        self._model_catalog = model_catalog
 
     async def proxy_chat_completions(
         self, chat_req: ChatCompletionsRequest
     ) -> ChatCompletionsResponse:
         requested_model = chat_req.model
-        responses_req = self.convert_chat_to_responses(chat_req)
+        responses_req = await self.convert_chat_to_responses(chat_req)
         if not responses_req.input:
             raise ValueError("No non-system input message found (input is empty)")
 
@@ -87,7 +94,7 @@ class ProxyService:
         from codex_openai_adapter.services.streaming_formatter import OpenAIStreamFormatter
 
         requested_model = chat_req.model
-        responses_req = self.convert_chat_to_responses(chat_req)
+        responses_req = await self.convert_chat_to_responses(chat_req)
         if not responses_req.input:
             raise ValueError("No non-system input message found (input is empty)")
 
@@ -136,13 +143,15 @@ class ProxyService:
 
         return iterator()
 
-    def convert_chat_to_responses(
+    async def convert_chat_to_responses(
         self, chat_req: ChatCompletionsRequest
     ) -> ResponsesApiRequest:
+        base_models = await self._model_catalog.get_base_models_for_request(chat_req.model)
         backend_model, reasoning = resolve_model_and_reasoning(
             chat_req.model,
             chat_req.reasoning,
             chat_req.reasoning_effort,
+            base_models,
         )
         temperature = resolve_temperature(
             chat_req.model,
@@ -228,7 +237,7 @@ class ProxyService:
             tool_choice=getattr(request, "tool_choice", None),
         )
         requested_model = normalize_ollama_model(request.model)
-        responses_req = self.convert_chat_to_responses(chat_request)
+        responses_req = await self.convert_chat_to_responses(chat_request)
         if not responses_req.input:
             raise ValueError("No non-system input message found (input is empty)")
 

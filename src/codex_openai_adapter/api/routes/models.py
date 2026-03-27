@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from codex_openai_adapter.services.model_resolution import exposed_model_list
+from codex_openai_adapter.api.deps import get_model_catalog
+from codex_openai_adapter.services.model_catalog import ModelCatalogService
 
 router = APIRouter(tags=["models"])
 
 
-def _models_payload() -> dict[str, object]:
+def _models_payload(models: list[str]) -> dict[str, object]:
     return {
         "object": "list",
         "data": [
@@ -17,12 +18,14 @@ def _models_payload() -> dict[str, object]:
                 "created": 1687882411,
                 "owned_by": "openai",
             }
-            for model in exposed_model_list()
+            for model in models
         ],
     }
 
 
 @router.get("/models")
 @router.get("/v1/models")
-def models() -> dict[str, object]:
-    return _models_payload()
+async def models(
+    model_catalog: ModelCatalogService = Depends(get_model_catalog),
+) -> dict[str, object]:
+    return _models_payload(await model_catalog.get_exposed_models())

@@ -12,6 +12,7 @@ from httpx import Response
 from codex_openai_adapter.app import create_app
 from codex_openai_adapter.core.config import Settings
 from codex_openai_adapter.schemas.openai import ChatCompletionsRequest, ChatMessage
+from codex_openai_adapter.services.model_catalog import ModelCatalogService
 from codex_openai_adapter.services.proxy_service import ProxyService
 
 
@@ -81,6 +82,9 @@ class FakeBackendClient:
 
         return iterator()
 
+    async def fetch_codex_model_slugs(self, client_version: str):  # noqa: ARG002
+        return ["gpt-5.4", "gpt-5.3-codex"]
+
 
 class SlowFakeBackendClient(FakeBackendClient):
     def __init__(self, lines: list[str], delay_seconds: float) -> None:
@@ -110,7 +114,8 @@ async def test_disconnect_stops_stream_and_closes_upstream(tmp_path: Path) -> No
             "data: [DONE]",
         ]
     )
-    service = ProxyService(settings, backend_client)  # type: ignore[arg-type]
+    model_catalog = ModelCatalogService(settings, backend_client)  # type: ignore[arg-type]
+    service = ProxyService(settings, backend_client, model_catalog)  # type: ignore[arg-type]
     request = ChatCompletionsRequest(
         model="gpt-5.4",
         messages=[ChatMessage(role="user", content="hello")],
@@ -147,7 +152,8 @@ async def test_openai_stream_emits_idle_heartbeat(tmp_path: Path) -> None:
         ],
         delay_seconds=0.03,
     )
-    service = ProxyService(settings, backend_client)  # type: ignore[arg-type]
+    model_catalog = ModelCatalogService(settings, backend_client)  # type: ignore[arg-type]
+    service = ProxyService(settings, backend_client, model_catalog)  # type: ignore[arg-type]
     request = ChatCompletionsRequest(
         model="gpt-5.4",
         messages=[ChatMessage(role="user", content="hello")],
@@ -176,7 +182,8 @@ async def test_ollama_stream_emits_idle_heartbeat(tmp_path: Path) -> None:
         ],
         delay_seconds=0.03,
     )
-    service = ProxyService(settings, backend_client)  # type: ignore[arg-type]
+    model_catalog = ModelCatalogService(settings, backend_client)  # type: ignore[arg-type]
+    service = ProxyService(settings, backend_client, model_catalog)  # type: ignore[arg-type]
     from codex_openai_adapter.schemas.ollama import OllamaGenerateRequest
 
     request = OllamaGenerateRequest(

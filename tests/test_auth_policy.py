@@ -11,6 +11,7 @@ def build_settings(required_api_key: str | None) -> Settings:
         port=8888,
         auth_path=Path.home() / ".codex" / "auth.json",
         required_client_api_key=required_api_key,
+        backend_models_url="http://127.0.0.1:9/backend-api/codex/models",
         service_name="codex-openai-adapter",
         service_version="0.1.0",
     )
