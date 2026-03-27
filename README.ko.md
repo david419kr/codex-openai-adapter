@@ -6,6 +6,7 @@ FastAPI 기반 어댑터로, Codex/ChatGPT 기반 인증을 사용하면서 Open
 tool 사용을 지원하며, 실제 [Cline](https://cline.bot/) 에이전트 코딩 워크플로우에 실사용할 수 있는 수준입니다. "OpenAI Compatible" 및 "Ollama" API Provider 설정 모두에서 간단한 동작 확인을 마쳤습니다.  
 다른 코딩 에이전트에서는 아직 테스트하지 않았지만, 표준 OpenAI 호환 또는 Ollama 호환 연결을 지원하는 클라이언트라면 대체로 동작할 가능성이 높습니다.  
 물론, 일반적인 비에이전트 용도의 chat/completions API로도 문제없이 사용할 수 있습니다.  
+Windows와 Apple Silicon Mac에서 테스트되었습니다.
 
 ## 실행
 

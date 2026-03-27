@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-pass_args=("$@")
+declare -a pass_args=("$@")
 
 if [[ $# -ge 1 && -n "${1:-}" ]]; then
   export PORT="$1"
@@ -26,4 +26,8 @@ echo "Working directory: $PWD"
 echo "Config sources: CLI args > environment variables > .env > built-in defaults"
 echo
 
-exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_adapter "${pass_args[@]}"
+if (( ${#pass_args[@]} )); then
+  exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_adapter "${pass_args[@]}"
+else
+  exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_adapter
+fi

@@ -8,6 +8,7 @@ This repository is actually working. It is not a mockup or placeholder project.
 It supports tool use and is practical for real [Cline](https://cline.bot/) agentic coding workflows, with both "OpenAI Compatible" and "Ollama" API Provider configuration briefly verified to work.  
 Other coding agents have not been tested here, but clients that support standard OpenAI-compatible or Ollama-compatible connections will likely work as well.  
 Of course, it also works fine as a normal chat/completions API for general non-agent use.  
+It has been tested on Windows and Apple Silicon Mac.
 
 ## Run
 
