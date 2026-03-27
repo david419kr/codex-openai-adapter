@@ -3,7 +3,7 @@
 FastAPI 기반 어댑터로, Codex/ChatGPT 기반 인증을 사용하면서 OpenAI 호환 및 Ollama 호환 엔드포인트를 제공합니다.
 
 이 저장소는 실제로 동작합니다. 목업이나 placeholder 프로젝트가 아닙니다.  
-tool 사용을 지원하며, 실제 [Cline](https://cline.bot/) 에이전트 코딩 워크플로우에 실사용할 수 있는 수준입니다. "OpenAI Compatible" 및 "Ollama" API Provider 설정 모두에서 간단한 동작 확인을 마쳤습니다.  
+tool 사용을 지원하며, 실제 에이전트 코딩 워크플로우에 실사용할 수 있는 수준입니다. [Cline](https://cline.bot/)에서 "OpenAI Compatible" 및 "Ollama" API Provider 설정 모두에서 간단한 동작 확인을 마쳤습니다.  
 다른 코딩 에이전트에서는 아직 테스트하지 않았지만, 표준 OpenAI 호환 또는 Ollama 호환 연결을 지원하는 클라이언트라면 대체로 동작할 가능성이 높습니다.  
 물론, 일반적인 비에이전트 용도의 chat/completions API로도 문제없이 사용할 수 있습니다.  
 Windows와 Apple Silicon Mac에서 테스트되었습니다.
@@ -134,8 +134,6 @@ Ollama 호환:
 - Ollama 호환 라우트에서는 `think` 사용
 
 클라이언트가 이 파라미터들을 지원하지 않으면, 모델명 뒤에 suffix를 붙여 reasoning level을 직접 선택할 수 있습니다.
-
-예를 들어 Cline을 Ollama 모드로 사용할 때는 `think`를 사용할 수 없으므로, `gpt-5.4-high` 같은 모델명을 직접 선택해서 reasoning level을 제어할 수 있습니다.
 
 예시:
 

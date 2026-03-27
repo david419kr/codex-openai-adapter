@@ -5,7 +5,7 @@
 FastAPI-based adapter that exposes OpenAI-compatible and Ollama-compatible endpoints while using Codex/ChatGPT-backed authentication.
 
 This repository is actually working. It is not a mockup or placeholder project.  
-It supports tool use and is practical for real [Cline](https://cline.bot/) agentic coding workflows, with both "OpenAI Compatible" and "Ollama" API Provider configuration briefly verified to work.  
+It supports tool use and is practical for real agentic coding workflows, with both "OpenAI Compatible" and "Ollama" API Provider configuration briefly tested to work on [Cline](https://cline.bot/).  
 Other coding agents have not been tested here, but clients that support standard OpenAI-compatible or Ollama-compatible connections will likely work as well.  
 Of course, it also works fine as a normal chat/completions API for general non-agent use.  
 It has been tested on Windows and Apple Silicon Mac.
@@ -136,8 +136,6 @@ If your client supports explicit reasoning controls:
 - use `think` on Ollama-compatible routes
 
 If your client does not support those parameters, you can select the reasoning level directly by putting a suffix on the model name.
-
-For example, when using Cline in Ollama mode, `think` is not available, so you can control the reasoning level by selecting a model name such as `gpt-5.4-high` directly.
 
 Examples:
 
