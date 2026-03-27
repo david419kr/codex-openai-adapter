@@ -10,6 +10,8 @@ Other coding agents have not been tested here, but clients that support standard
 Of course, it also works fine as a normal chat/completions API for general non-agent use.  
 It has been tested on Windows and Apple Silicon Mac.
 
+**Prerequisite: Codex must already be installed and logged in on the machine, and a valid `auth.json` must already exist before you run this adapter. The default expected location is `~/.codex/auth.json`. Without that file, this adapter cannot authenticate to the Codex backend.**
+
 ## Run
 
 Fresh setup:
@@ -72,6 +74,8 @@ CODEX_AUTH_PATH=~/.codex/auth.json
 API_KEY=ENTER_YOUR_DESIRED_API_KEY_HERE
 DEBUG=false
 ```
+
+**Important: `API_KEY` here is not an OpenAI API key. It is simply a password-like token that you choose yourself to protect access to this adapter's incoming endpoints. You might not need to set `API_KEY` if you only use this locally.**
 
 If you want to mirror Ollama's default port exactly, set:
 
