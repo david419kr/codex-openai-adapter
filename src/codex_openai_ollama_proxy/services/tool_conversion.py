@@ -5,7 +5,7 @@ import json
 from typing import Any
 from uuid import uuid4
 
-from codex_openai_adapter.schemas.openai import ChatMessage, ChatMessageToolCall
+from codex_openai_ollama_proxy.schemas.openai import ChatMessage, ChatMessageToolCall
 
 
 def normalize_function_arguments(arguments: Any) -> str:

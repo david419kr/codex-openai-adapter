@@ -1,4 +1,4 @@
-from codex_openai_adapter.services.model_resolution import (
+from codex_openai_ollama_proxy.services.model_resolution import (
     FALLBACK_BASE_MODELS,
     MODEL_CODEX,
     MODEL_GENERAL,

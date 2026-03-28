@@ -11,7 +11,7 @@ if exist ".python-version" (
 
 call :ensure_uv || exit /b 1
 
-echo Installing codex-openai-adapter
+echo Installing codex-openai-ollama-proxy
 echo Working directory: %CD%
 echo Using uv: %UV_EXE%
 echo Python version: %PYTHON_VERSION%
@@ -45,8 +45,8 @@ if exist "uv.lock" (
 
 echo.
 echo Installation complete.
-echo Start the adapter with:
-echo   run-adapter.bat
+echo Start the proxy with:
+echo   run-proxy.bat
 exit /b 0
 
 :ensure_uv
@@ -77,7 +77,7 @@ if not defined UV_EXE (
 
 if not defined UV_EXE (
     echo [ERROR] uv was installed but could not be located in this shell.
-    echo Add uv to PATH or open a new terminal, then rerun install-adapter.bat.
+    echo Add uv to PATH or open a new terminal, then rerun install-proxy.bat.
     exit /b 1
 )
 

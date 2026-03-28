@@ -85,8 +85,8 @@ class Settings:
     backend_models_client_version: str = DEFAULT_BACKEND_MODELS_CLIENT_VERSION
     oauth_token_url: str = DEFAULT_OAUTH_TOKEN_URL
     codex_client_id: str = OPENAI_CODEX_CLIENT_ID
-    service_name: str = "codex-openai-proxy"
-    service_version: str = "0.0.0-proxy"
+    service_name: str = "codex-openai-ollama-proxy"
+    service_version: str = "0.1.0"
     public_paths: frozenset[str] = field(
         default_factory=lambda: frozenset(
             {"/health", "/api/tags", "/chat-test", "/chat-test.html"}
@@ -101,7 +101,7 @@ class Settings:
     ) -> "Settings":
         load_dotenv_file((cwd or Path.cwd()) / ".env")
 
-        parser = argparse.ArgumentParser(prog="codex-openai-adapter")
+        parser = argparse.ArgumentParser(prog="codex-openai-ollama-proxy")
         parser.add_argument("-p", "--port", dest="port")
         parser.add_argument("--auth-path", dest="auth_path")
         args = parser.parse_args(list(cli_args) if cli_args is not None else None)

@@ -87,13 +87,13 @@ ensure_uv() {
   fi
 
   echo "[ERROR] uv was installed but could not be located in this shell." >&2
-  echo "Add \$HOME/.local/bin to PATH or open a new terminal, then rerun install-adapter.sh." >&2
+  echo "Add \$HOME/.local/bin to PATH or open a new terminal, then rerun install-proxy.sh." >&2
   return 1
 }
 
 ensure_uv
 
-echo "Installing codex-openai-adapter"
+echo "Installing codex-openai-ollama-proxy"
 echo "Working directory: $PWD"
 echo "Using uv: $UV_BIN"
 echo "Python version: $PYTHON_VERSION"
@@ -123,5 +123,5 @@ fi
 
 echo
 echo "Installation complete."
-echo "Start the adapter with:"
-echo "  ./run-adapter.sh"
+echo "Start the proxy with:"
+echo "  ./run-proxy.sh"

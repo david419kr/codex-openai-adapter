@@ -2,8 +2,8 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from codex_openai_adapter.app import create_app
-from codex_openai_adapter.core.config import Settings
+from codex_openai_ollama_proxy.app import create_app
+from codex_openai_ollama_proxy.core.config import Settings
 
 
 def build_settings(required_api_key: str | None) -> Settings:
@@ -12,7 +12,7 @@ def build_settings(required_api_key: str | None) -> Settings:
         auth_path=Path.home() / ".codex" / "auth.json",
         required_client_api_key=required_api_key,
         backend_models_url="http://127.0.0.1:9/backend-api/codex/models",
-        service_name="codex-openai-adapter",
+        service_name="codex-openai-ollama-proxy",
         service_version="0.1.0",
     )
 

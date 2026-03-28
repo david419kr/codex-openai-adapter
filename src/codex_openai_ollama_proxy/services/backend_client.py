@@ -5,12 +5,12 @@ from uuid import uuid4
 
 import httpx
 
-from codex_openai_adapter.core.config import Settings
-from codex_openai_adapter.core.debug_trace import log_debug_event
-from codex_openai_adapter.core.errors import BackendHTTPError
-from codex_openai_adapter.schemas.auth import AuthData
-from codex_openai_adapter.schemas.backend import ResponsesApiRequest
-from codex_openai_adapter.services.auth_store import AuthStore
+from codex_openai_ollama_proxy.core.config import Settings
+from codex_openai_ollama_proxy.core.debug_trace import log_debug_event
+from codex_openai_ollama_proxy.core.errors import BackendHTTPError
+from codex_openai_ollama_proxy.schemas.auth import AuthData
+from codex_openai_ollama_proxy.schemas.backend import ResponsesApiRequest
+from codex_openai_ollama_proxy.services.auth_store import AuthStore
 
 
 class BackendClient:

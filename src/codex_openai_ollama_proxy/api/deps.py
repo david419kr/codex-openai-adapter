@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from fastapi import Request
 
-from codex_openai_adapter.core.config import Settings
-from codex_openai_adapter.services.model_catalog import ModelCatalogService
-from codex_openai_adapter.services.proxy_service import ProxyService
+from codex_openai_ollama_proxy.core.config import Settings
+from codex_openai_ollama_proxy.services.model_catalog import ModelCatalogService
+from codex_openai_ollama_proxy.services.proxy_service import ProxyService
 
 
 def get_settings(request: Request) -> Settings:

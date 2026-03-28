@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from codex_openai_adapter.api.deps import get_settings
-from codex_openai_adapter.core.config import Settings
+from codex_openai_ollama_proxy.api.deps import get_settings
+from codex_openai_ollama_proxy.core.config import Settings
 
 router = APIRouter(tags=["health"])
 

@@ -4,10 +4,10 @@ import json
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from codex_openai_adapter.schemas.events import ToolCallChunkEvent
-from codex_openai_adapter.schemas.openai import ChatCompletionsResponse, ChatToolCall
-from codex_openai_adapter.schemas.usage import Usage
-from codex_openai_adapter.services.tool_conversion import convert_chat_tool_calls_to_ollama
+from codex_openai_ollama_proxy.schemas.events import ToolCallChunkEvent
+from codex_openai_ollama_proxy.schemas.openai import ChatCompletionsResponse, ChatToolCall
+from codex_openai_ollama_proxy.schemas.usage import Usage
+from codex_openai_ollama_proxy.services.tool_conversion import convert_chat_tool_calls_to_ollama
 
 
 def build_openai_sse_response(

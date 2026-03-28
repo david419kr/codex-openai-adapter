@@ -1,4 +1,4 @@
-from codex_openai_adapter.services.tool_conversion import (
+from codex_openai_ollama_proxy.services.tool_conversion import (
     convert_chat_tools_to_responses,
     convert_tool_choice,
     normalize_function_arguments,

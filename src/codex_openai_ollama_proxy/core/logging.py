@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from codex_openai_adapter.core.debug_trace import DEBUG_LOGGER_NAME
+from codex_openai_ollama_proxy.core.debug_trace import DEBUG_LOGGER_NAME
 
 
 def configure_logging(*, debug: bool = False, project_root: Path | None = None) -> None:
@@ -28,4 +28,4 @@ def configure_logging(*, debug: bool = False, project_root: Path | None = None) 
         debug_logger.addHandler(handler)
 
 
-logger = logging.getLogger("codex_openai_adapter")
+logger = logging.getLogger("codex_openai_ollama_proxy")

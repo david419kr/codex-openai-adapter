@@ -6,17 +6,17 @@ import json
 from typing import Any
 from uuid import uuid4
 
-from codex_openai_adapter.core.errors import EmptyBackendResponseError
-from codex_openai_adapter.schemas.events import (
+from codex_openai_ollama_proxy.core.errors import EmptyBackendResponseError
+from codex_openai_ollama_proxy.schemas.events import (
     StreamEvent,
     TextDeltaEvent,
     TextDoneEvent,
     ToolCallChunkEvent,
     UsageEvent,
 )
-from codex_openai_adapter.schemas.usage import Usage
-from codex_openai_adapter.services.stream_state import StreamState
-from codex_openai_adapter.services.usage_extraction import extract_usage_from_event
+from codex_openai_ollama_proxy.schemas.usage import Usage
+from codex_openai_ollama_proxy.services.stream_state import StreamState
+from codex_openai_ollama_proxy.services.usage_extraction import extract_usage_from_event
 
 
 @dataclass(slots=True)

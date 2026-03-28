@@ -17,17 +17,17 @@ if [[ $# -ge 2 && -n "${2:-}" ]]; then
 fi
 
 if [[ ! -d ".venv" ]]; then
-  echo "[ERROR] .venv not found. Run install-adapter.sh first."
+  echo "[ERROR] .venv not found. Run install-proxy.sh first."
   exit 1
 fi
 
-echo "Starting codex-openai-adapter"
+echo "Starting codex-openai-ollama-proxy"
 echo "Working directory: $PWD"
 echo "Config sources: CLI args > environment variables > .env > built-in defaults"
 echo
 
 if (( ${#pass_args[@]} )); then
-  exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_adapter "${pass_args[@]}"
+  exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_ollama_proxy "${pass_args[@]}"
 else
-  exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_adapter
+  exec "$SCRIPT_DIR/.venv/bin/python" -m codex_openai_ollama_proxy
 fi

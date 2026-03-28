@@ -41,7 +41,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await backend_client.aclose()
 
     app = FastAPI(
-        title="codex-openai-adapter",
+        title="codex-openai-ollama-proxy",
         version=resolved_settings.service_version,
         lifespan=lifespan,
     )

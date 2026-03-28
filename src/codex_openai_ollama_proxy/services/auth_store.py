@@ -8,8 +8,8 @@ from pathlib import Path
 
 import httpx
 
-from codex_openai_adapter.core.errors import AuthenticationRefreshError
-from codex_openai_adapter.schemas.auth import AuthData, TokenRefreshResponse
+from codex_openai_ollama_proxy.core.errors import AuthenticationRefreshError
+from codex_openai_ollama_proxy.schemas.auth import AuthData, TokenRefreshResponse
 
 
 class AuthStore:

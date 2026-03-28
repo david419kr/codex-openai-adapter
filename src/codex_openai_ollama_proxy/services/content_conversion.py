@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections import deque
 from typing import Any
 
-from codex_openai_adapter.core.config import DEFAULT_SYSTEM_INSTRUCTIONS
-from codex_openai_adapter.schemas.openai import ChatMessage
-from codex_openai_adapter.services.tool_conversion import (
+from codex_openai_ollama_proxy.core.config import DEFAULT_SYSTEM_INSTRUCTIONS
+from codex_openai_ollama_proxy.schemas.openai import ChatMessage
+from codex_openai_ollama_proxy.services.tool_conversion import (
     assistant_tool_calls_to_input,
     tool_message_to_output,
 )

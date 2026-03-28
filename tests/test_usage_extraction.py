@@ -1,4 +1,4 @@
-from codex_openai_adapter.services.usage_extraction import extract_usage_from_event
+from codex_openai_ollama_proxy.services.usage_extraction import extract_usage_from_event
 
 
 def test_extract_usage_from_response_usage_event() -> None:

@@ -1,5 +1,5 @@
-from codex_openai_adapter.schemas.openai import ChatMessage, ChatMessageToolCall, ChatMessageToolFunction
-from codex_openai_adapter.services.content_conversion import (
+from codex_openai_ollama_proxy.schemas.openai import ChatMessage, ChatMessageToolCall, ChatMessageToolFunction
+from codex_openai_ollama_proxy.services.content_conversion import (
     convert_messages_to_input,
     parse_chat_content_items,
 )

@@ -1,8 +1,8 @@
 한국어 README: [README.ko.md](./README.ko.md)
 
-# codex-openai-adapter
+# Codex OpenAI/Ollama Proxy
 
-FastAPI-based adapter that exposes OpenAI-compatible and Ollama-compatible endpoints while using Codex/ChatGPT-backed authentication.
+FastAPI-based proxy that exposes OpenAI-compatible and Ollama-compatible endpoints while using Codex/ChatGPT-backed authentication.
 
 This repository is actually working. It is not a mockup or placeholder project.  
 It supports tool use and is practical for real agentic coding workflows, with both "OpenAI Compatible" and "Ollama" API Provider configuration briefly tested to work on [Cline](https://cline.bot/).  
@@ -10,7 +10,7 @@ Other coding agents have not been tested here, but clients that support standard
 Of course, it also works fine as a normal chat/completions API for general non-agent use.  
 It has been tested on Windows and Apple Silicon Mac.
 
-**Prerequisite: Codex must already be installed and logged in on the machine, and a valid `auth.json` must already exist before you run this adapter. The default expected location is `~/.codex/auth.json`. Without that file, this adapter cannot authenticate to the Codex backend.**
+**Prerequisite: Codex must already be installed and logged in on the machine, and a valid `auth.json` must already exist before you run this proxy. The default expected location is `~/.codex/auth.json`. Without that file, this proxy cannot authenticate to the Codex backend.**
 
 ## Run
 
@@ -19,13 +19,13 @@ Fresh setup:
 Linux/macOS:
 
 ```bash
-./install-adapter.sh
+./install-proxy.sh
 ```
 
 Windows:
 
 ```bat
-install-adapter.bat
+install-proxy.bat
 ```
 
 The install script:
@@ -34,18 +34,18 @@ The install script:
 - installs `uv` first if it is missing
 - creates `.venv` then installs everything needed
 
-Start the adapter after installation:
+Start the proxy after installation:
 
 Linux/macOS:
 
 ```bash
-./run-adapter.sh
+./run-proxy.sh
 ```
 
 Windows:
 
 ```bat
-run-adapter.bat
+run-proxy.bat
 ```
 
 Test page:
@@ -56,15 +56,15 @@ http://localhost:8888/chat-test
 
 If you changed `PORT`, open the same path on that port instead.
 
-The adapter reads configuration from `.env` file if it exists.
+The proxy reads configuration from `.env` file if it exists.
 If you do not provide a `.env` file:
 
-- the adapter listens on `http://localhost:8888`
+- the proxy listens on `http://localhost:8888`
 - incoming requests do not require an API key
 
 ## Configuration
 
-`.env` is optional. If you do not create one, the adapter uses the built-in defaults above.
+`.env` is optional. If you do not create one, the proxy uses the built-in defaults above.
 
 Example `.env` with custom settings:
 
@@ -75,7 +75,7 @@ API_KEY=ENTER_YOUR_DESIRED_API_KEY_HERE
 DEBUG=false
 ```
 
-**Important: `API_KEY` here is not an OpenAI API key. It is simply a password-like token that you choose yourself to protect access to this adapter's incoming endpoints. You might not need to set `API_KEY` if you only use this locally.**
+**Important: `API_KEY` here is not an OpenAI API key. It is simply a password-like token that you choose yourself to protect access to this proxy's incoming endpoints. You might not need to set `API_KEY` if you only use this locally.**
 
 If you want to mirror Ollama's default port exactly, set:
 
@@ -83,14 +83,14 @@ If you want to mirror Ollama's default port exactly, set:
 PORT=11434
 ```
 
-That is useful when you want clients to talk to the adapter on the same port they normally use for Ollama.
+That is useful when you want clients to talk to the proxy on the same port they normally use for Ollama.
 
-If you set `DEBUG=true`, the adapter writes request/response trace logs for the backend-communicating endpoints to `logs/debug.log`.
+If you set `DEBUG=true`, the proxy writes request/response trace logs for the backend-communicating endpoints to `logs/debug.log`.
 
 Rules:
 
 1. If `API_KEY` is set, `/health` and `/api/tags` stay public and the rest require that key.
-2. If `API_KEY` is not set, the adapter allows unauthenticated access. This is the default when you have no `.env` override.
+2. If `API_KEY` is not set, the proxy allows unauthenticated access. This is the default when you have no `.env` override.
 
 ## Endpoint Policy
 
@@ -130,9 +130,9 @@ Ollama-compatible:
 
 Model list is loaded dynamically from the Codex backend. Models other than `gpt-5.4` and `gpt-5.3-codex` may also appear and can often be used as long as you specify the exact model name shown by `/models`, `/v1/models`, or `/api/tags`.
 
-If new Codex models are added later on OpenAI Codex server, they may become available here without a separate adapter update.
+If new Codex models are added later on the OpenAI Codex server, they may become available here without a separate proxy update.
 
-For compatibility, the adapter also generates `-low`, `-medium`, `-high`, and `-xhigh` suffix aliases for every dynamically discovered base model. However, this project is primarily designed and tested around `gpt-5.4` and `gpt-5.3-codex`, so behavior for other models is best-effort only and is not guaranteed, especially for `reasoning_effort`, `think`, `temperature`, and related compatibility details. The suffix aliases should likewise be considered reliable only for `gpt-5.4` and `gpt-5.3-codex`.
+For compatibility, the proxy also generates `-low`, `-medium`, `-high`, and `-xhigh` suffix aliases for every dynamically discovered base model. However, this project is primarily designed and tested around `gpt-5.4` and `gpt-5.3-codex`, so behavior for other models is best-effort only and is not guaranteed, especially for `reasoning_effort`, `think`, `temperature`, and related compatibility details. The suffix aliases should likewise be considered reliable only for `gpt-5.4` and `gpt-5.3-codex`.
 
 If your client supports explicit reasoning controls:
 

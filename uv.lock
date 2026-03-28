@@ -54,7 +54,7 @@ wheels = [
 ]
 
 [[package]]
-name = "codex-openai-adapter"
+name = "codex-openai-ollama-proxy"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

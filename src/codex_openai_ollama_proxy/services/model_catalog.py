@@ -5,10 +5,10 @@ import logging
 import time
 from collections.abc import Callable, Sequence
 
-from codex_openai_adapter.core.config import Settings
-from codex_openai_adapter.core.debug_trace import log_debug_event
-from codex_openai_adapter.services.backend_client import BackendClient
-from codex_openai_adapter.services.model_resolution import (
+from codex_openai_ollama_proxy.core.config import Settings
+from codex_openai_ollama_proxy.core.debug_trace import log_debug_event
+from codex_openai_ollama_proxy.services.backend_client import BackendClient
+from codex_openai_ollama_proxy.services.model_resolution import (
     FALLBACK_BASE_MODELS,
     exposed_model_list,
     is_known_model,

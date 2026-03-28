@@ -3,16 +3,16 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from codex_openai_adapter.api.deps import get_proxy_service
-from codex_openai_adapter.core.debug_trace import (
+from codex_openai_ollama_proxy.api.deps import get_proxy_service
+from codex_openai_ollama_proxy.core.debug_trace import (
     finish_debug_request,
     log_debug_event,
     start_debug_request,
 )
-from codex_openai_adapter.core.errors import openai_error_response
-from codex_openai_adapter.schemas.openai import ChatCompletionsRequest
-from codex_openai_adapter.services.proxy_service import ProxyService
-from codex_openai_adapter.services.streaming_formatter import build_openai_error_sse
+from codex_openai_ollama_proxy.core.errors import openai_error_response
+from codex_openai_ollama_proxy.schemas.openai import ChatCompletionsRequest
+from codex_openai_ollama_proxy.services.proxy_service import ProxyService
+from codex_openai_ollama_proxy.services.streaming_formatter import build_openai_error_sse
 
 router = APIRouter(tags=["openai"])
 

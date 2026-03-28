@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from codex_openai_adapter.api.deps import get_model_catalog
-from codex_openai_adapter.services.model_catalog import ModelCatalogService
+from codex_openai_ollama_proxy.api.deps import get_model_catalog
+from codex_openai_ollama_proxy.services.model_catalog import ModelCatalogService
 
 router = APIRouter(tags=["models"])
 

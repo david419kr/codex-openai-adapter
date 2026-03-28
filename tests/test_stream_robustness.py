@@ -9,11 +9,11 @@ import respx
 from fastapi.testclient import TestClient
 from httpx import Response
 
-from codex_openai_adapter.app import create_app
-from codex_openai_adapter.core.config import Settings
-from codex_openai_adapter.schemas.openai import ChatCompletionsRequest, ChatMessage
-from codex_openai_adapter.services.model_catalog import ModelCatalogService
-from codex_openai_adapter.services.proxy_service import ProxyService
+from codex_openai_ollama_proxy.app import create_app
+from codex_openai_ollama_proxy.core.config import Settings
+from codex_openai_ollama_proxy.schemas.openai import ChatCompletionsRequest, ChatMessage
+from codex_openai_ollama_proxy.services.model_catalog import ModelCatalogService
+from codex_openai_ollama_proxy.services.proxy_service import ProxyService
 
 
 def write_auth_file(path: Path, payload: dict) -> None:
@@ -25,7 +25,7 @@ def build_settings(auth_path: Path) -> Settings:
         port=8888,
         auth_path=auth_path,
         required_client_api_key=None,
-        service_name="codex-openai-adapter",
+        service_name="codex-openai-ollama-proxy",
         service_version="0.1.0",
     )
 
@@ -184,7 +184,7 @@ async def test_ollama_stream_emits_idle_heartbeat(tmp_path: Path) -> None:
     )
     model_catalog = ModelCatalogService(settings, backend_client)  # type: ignore[arg-type]
     service = ProxyService(settings, backend_client, model_catalog)  # type: ignore[arg-type]
-    from codex_openai_adapter.schemas.ollama import OllamaGenerateRequest
+    from codex_openai_ollama_proxy.schemas.ollama import OllamaGenerateRequest
 
     request = OllamaGenerateRequest(
         model="gpt-5.4:latest",

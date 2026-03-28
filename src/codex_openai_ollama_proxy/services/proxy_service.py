@@ -7,38 +7,38 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
-from codex_openai_adapter.core.config import DEFAULT_SYSTEM_INSTRUCTIONS, Settings
-from codex_openai_adapter.core.debug_trace import log_debug_event
-from codex_openai_adapter.core.errors import EmptyBackendResponseError
-from codex_openai_adapter.schemas.backend import ResponsesApiRequest
-from codex_openai_adapter.schemas.events import (
+from codex_openai_ollama_proxy.core.config import DEFAULT_SYSTEM_INSTRUCTIONS, Settings
+from codex_openai_ollama_proxy.core.debug_trace import log_debug_event
+from codex_openai_ollama_proxy.core.errors import EmptyBackendResponseError
+from codex_openai_ollama_proxy.schemas.backend import ResponsesApiRequest
+from codex_openai_ollama_proxy.schemas.events import (
     TextDeltaEvent,
     TextDoneEvent,
     ToolCallChunkEvent,
 )
-from codex_openai_adapter.schemas.ollama import OllamaChatRequest, OllamaGenerateRequest
-from codex_openai_adapter.schemas.openai import (
+from codex_openai_ollama_proxy.schemas.ollama import OllamaChatRequest, OllamaGenerateRequest
+from codex_openai_ollama_proxy.schemas.openai import (
     ChatCompletionsRequest,
     ChatCompletionsResponse,
     ChatMessage,
     ChatResponseMessage,
     Choice,
 )
-from codex_openai_adapter.schemas.usage import Usage
-from codex_openai_adapter.services.backend_client import BackendClient
-from codex_openai_adapter.services.content_conversion import convert_messages_to_input
-from codex_openai_adapter.services.event_parser import (
+from codex_openai_ollama_proxy.schemas.usage import Usage
+from codex_openai_ollama_proxy.services.backend_client import BackendClient
+from codex_openai_ollama_proxy.services.content_conversion import convert_messages_to_input
+from codex_openai_ollama_proxy.services.event_parser import (
     parse_backend_sse_text,
     stream_events_from_sse_lines,
 )
-from codex_openai_adapter.services.model_catalog import ModelCatalogService
-from codex_openai_adapter.services.model_resolution import (
+from codex_openai_ollama_proxy.services.model_catalog import ModelCatalogService
+from codex_openai_ollama_proxy.services.model_resolution import (
     normalize_ollama_think,
     resolve_model_and_reasoning,
     resolve_temperature,
 )
-from codex_openai_adapter.services.stream_state import StreamState
-from codex_openai_adapter.services.tool_conversion import (
+from codex_openai_ollama_proxy.services.stream_state import StreamState
+from codex_openai_ollama_proxy.services.tool_conversion import (
     convert_chat_tools_to_responses,
     convert_tool_choice,
 )
@@ -91,7 +91,7 @@ class ProxyService:
         chat_req: ChatCompletionsRequest,
         is_disconnected: Callable[[], Awaitable[bool]] | None = None,
     ) -> AsyncIterator[str]:
-        from codex_openai_adapter.services.streaming_formatter import OpenAIStreamFormatter
+        from codex_openai_ollama_proxy.services.streaming_formatter import OpenAIStreamFormatter
 
         requested_model = chat_req.model
         responses_req = await self.convert_chat_to_responses(chat_req)
@@ -224,7 +224,7 @@ class ProxyService:
         mode: str,
         is_disconnected: Callable[[], Awaitable[bool]] | None = None,
     ) -> AsyncIterator[str]:
-        from codex_openai_adapter.services.streaming_formatter import OllamaStreamFormatter
+        from codex_openai_ollama_proxy.services.streaming_formatter import OllamaStreamFormatter
 
         chat_request = self._build_chat_request_from_ollama(
             model=request.model,

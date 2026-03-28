@@ -8,9 +8,9 @@ import respx
 from fastapi.testclient import TestClient
 from httpx import Response
 
-from codex_openai_adapter.app import create_app
-from codex_openai_adapter.core.config import Settings
-from codex_openai_adapter.services.model_catalog import ModelCatalogService
+from codex_openai_ollama_proxy.app import create_app
+from codex_openai_ollama_proxy.core.config import Settings
+from codex_openai_ollama_proxy.services.model_catalog import ModelCatalogService
 
 
 def write_auth_file(path: Path, payload: dict) -> None:
@@ -22,7 +22,7 @@ def build_settings(auth_path: Path) -> Settings:
         port=8888,
         auth_path=auth_path,
         required_client_api_key=None,
-        service_name="codex-openai-adapter",
+        service_name="codex-openai-ollama-proxy",
         service_version="0.1.0",
     )
 

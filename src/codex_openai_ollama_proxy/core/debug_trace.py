@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
-DEBUG_LOGGER_NAME = "codex_openai_adapter.debug_trace"
+DEBUG_LOGGER_NAME = "codex_openai_ollama_proxy.debug_trace"
 
 _request_id_var: ContextVar[str | None] = ContextVar("debug_request_id", default=None)
 _endpoint_var: ContextVar[str | None] = ContextVar("debug_endpoint", default=None)

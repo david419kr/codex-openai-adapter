@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from codex_openai_adapter.schemas.events import (
+from codex_openai_ollama_proxy.schemas.events import (
     StreamEvent,
     TextDeltaEvent,
     TextDoneEvent,
     ToolCallChunkEvent,
     UsageEvent,
 )
-from codex_openai_adapter.schemas.openai import ChatToolCall, ChatToolFunction
-from codex_openai_adapter.schemas.usage import Usage
+from codex_openai_ollama_proxy.schemas.openai import ChatToolCall, ChatToolFunction
+from codex_openai_ollama_proxy.schemas.usage import Usage
 
 
 @dataclass(slots=True)

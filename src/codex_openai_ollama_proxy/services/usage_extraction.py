@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from codex_openai_adapter.schemas.usage import Usage
+from codex_openai_ollama_proxy.schemas.usage import Usage
 
 
 def parse_token_count(value: Any) -> int | None:

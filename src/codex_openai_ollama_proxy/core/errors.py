@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 
 class ProxyError(Exception):
-    """Base exception for adapter failures."""
+    """Base exception for proxy failures."""
 
 
 class BackendHTTPError(ProxyError):

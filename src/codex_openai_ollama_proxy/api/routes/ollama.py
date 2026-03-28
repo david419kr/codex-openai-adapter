@@ -3,19 +3,19 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from codex_openai_adapter.api.deps import get_model_catalog, get_proxy_service, get_settings
-from codex_openai_adapter.core.config import Settings
-from codex_openai_adapter.core.debug_trace import (
+from codex_openai_ollama_proxy.api.deps import get_model_catalog, get_proxy_service, get_settings
+from codex_openai_ollama_proxy.core.config import Settings
+from codex_openai_ollama_proxy.core.debug_trace import (
     finish_debug_request,
     log_debug_event,
     start_debug_request,
 )
-from codex_openai_adapter.core.errors import ollama_error_response
-from codex_openai_adapter.schemas.ollama import OllamaChatRequest, OllamaGenerateRequest
-from codex_openai_adapter.services.model_catalog import ModelCatalogService
-from codex_openai_adapter.services.proxy_service import ProxyService
-from codex_openai_adapter.services.streaming_formatter import build_ollama_error_ndjson
-from codex_openai_adapter.services.tool_conversion import convert_chat_tool_calls_to_ollama
+from codex_openai_ollama_proxy.core.errors import ollama_error_response
+from codex_openai_ollama_proxy.schemas.ollama import OllamaChatRequest, OllamaGenerateRequest
+from codex_openai_ollama_proxy.services.model_catalog import ModelCatalogService
+from codex_openai_ollama_proxy.services.proxy_service import ProxyService
+from codex_openai_ollama_proxy.services.streaming_formatter import build_ollama_error_ndjson
+from codex_openai_ollama_proxy.services.tool_conversion import convert_chat_tool_calls_to_ollama
 
 router = APIRouter(tags=["ollama"])
 
