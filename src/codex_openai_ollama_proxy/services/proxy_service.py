@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
+
+import httpx
 
 from codex_openai_ollama_proxy.core.config import DEFAULT_SYSTEM_INSTRUCTIONS, Settings
 from codex_openai_ollama_proxy.core.debug_trace import log_debug_event
@@ -181,6 +183,16 @@ class ProxyService:
         )
         log_debug_event("transformed_backend_request", payload=responses_request)
         return responses_request
+
+    async def open_responses_passthrough(
+        self,
+        request_body: bytes,
+        incoming_headers: Mapping[str, str] | None = None,
+    ) -> httpx.Response:
+        return await self._backend_client.open_responses_passthrough(
+            request_body,
+            incoming_headers=incoming_headers,
+        )
 
     async def proxy_ollama_chat(self, request: OllamaChatRequest) -> ChatCompletionsResponse:
         chat_request = self._build_chat_request_from_ollama(

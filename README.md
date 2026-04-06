@@ -104,7 +104,9 @@ Protected when `API_KEY` is configured:
 - `GET /models`
 - `GET /v1/models`
 - `GET /api/version`
+- `POST /responses`
 - `POST /chat/completions`
+- `POST /v1/responses`
 - `POST /v1/chat/completions`
 - `POST /api/chat`
 - `POST /api/generate`
@@ -115,7 +117,9 @@ OpenAI-compatible:
 
 - `GET /models`
 - `GET /v1/models`
+- `POST /responses`
 - `POST /chat/completions`
+- `POST /v1/responses`
 - `POST /v1/chat/completions`
 
 Ollama-compatible:
@@ -206,6 +210,19 @@ curl -N -X POST http://localhost:8888/v1/chat/completions \
   }'
 ```
 
+OpenAI Responses passthrough request:
+
+```bash
+curl -X POST http://localhost:8888/v1/responses \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ENTER_YOUR_DESIRED_API_KEY_HERE" \
+  -d '{
+    "model": "gpt-5.4",
+    "input": "Hello!",
+    "store": false
+  }'
+```
+
 Ollama-compatible request:
 
 ```bash
@@ -244,5 +261,6 @@ uv run --extra dev pytest
 
 ## Notes
 
+- `POST /responses` and `POST /v1/responses` forward the incoming OpenAI Responses request body to the Codex backend without converting it to chat completions or Ollama format. The upstream response body is also relayed as-is, including raw JSON and SSE streams.
 - Ollama-compatible requests accept an optional `think` parameter: `true`, `false`, `none`, `low`, `medium`, `high`, `xhigh`. `true` maps to `medium`, and `false` and `none` are treated the same.
 - `temperature` is guaranteed only for `gpt-5.4` base-model requests when effective reasoning is `none`. Other dynamically discovered models currently follow the same general rule on a best-effort basis, but that behavior is not guaranteed.

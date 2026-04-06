@@ -92,6 +92,116 @@ def test_openai_streaming_route_returns_sse(tmp_path: Path) -> None:
     assert "data: [DONE]" in response.text
 
 
+def test_openai_responses_passthrough_route_preserves_json_body_and_headers(
+    tmp_path: Path,
+) -> None:
+    auth_path = tmp_path / "auth.json"
+    write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})
+    settings = build_settings(auth_path)
+    app = create_app(settings)
+
+    request_body = '{\n  "model": "gpt-5.4",\n  "input": "hello"\n}'
+    response_body = '{"id":"resp_123","object":"response","status":"completed"}'
+
+    with respx.mock(assert_all_called=True) as respx_mock:
+        route = respx_mock.post(settings.backend_responses_url).mock(
+            return_value=Response(
+                200,
+                text=response_body,
+                headers={
+                    "content-type": "application/json; charset=utf-8",
+                    "x-request-id": "req_123",
+                },
+            )
+        )
+        with TestClient(app) as client:
+            response = client.post(
+                "/v1/responses",
+                content=request_body,
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "OpenAI-Beta": "responses=v1",
+                    "X-Stainless-Arch": "x64",
+                    "User-Agent": "OpenAI/Python 1.0",
+                },
+            )
+
+    assert response.status_code == 200
+    assert response.text == response_body
+    assert response.headers["content-type"].startswith("application/json")
+    assert response.headers["x-request-id"] == "req_123"
+    assert route.calls.last.request.content == request_body.encode("utf-8")
+    assert route.calls.last.request.headers["authorization"] == "Bearer backend_key"
+    assert route.calls.last.request.headers["accept"] == "application/json"
+    assert route.calls.last.request.headers["openai-beta"] == "responses=v1"
+    assert route.calls.last.request.headers["x-stainless-arch"] == "x64"
+    assert route.calls.last.request.headers["user-agent"] == "OpenAI/Python 1.0"
+
+
+def test_openai_responses_passthrough_route_preserves_sse_stream(tmp_path: Path) -> None:
+    auth_path = tmp_path / "auth.json"
+    write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})
+    settings = build_settings(auth_path)
+    app = create_app(settings)
+
+    backend_body = (
+        'data: {"type":"response.output_text.delta","delta":"Hello"}\n\n'
+        "data: [DONE]\n\n"
+    )
+
+    with respx.mock(assert_all_called=True) as respx_mock:
+        route = respx_mock.post(settings.backend_responses_url).mock(
+            return_value=Response(
+                200,
+                text=backend_body,
+                headers={"content-type": "text/event-stream; charset=utf-8"},
+            )
+        )
+        with TestClient(app) as client:
+            response = client.post(
+                "/v1/responses",
+                content='{"model":"gpt-5.4","input":"hello","stream":true}',
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "text/event-stream",
+                },
+            )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.text == backend_body
+    assert route.calls.last.request.content == b'{"model":"gpt-5.4","input":"hello","stream":true}'
+
+
+def test_openai_responses_passthrough_route_preserves_backend_error(tmp_path: Path) -> None:
+    auth_path = tmp_path / "auth.json"
+    write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})
+    settings = build_settings(auth_path)
+    app = create_app(settings)
+
+    response_body = '{"error":{"message":"backend exploded","type":"invalid_request_error"}}'
+
+    with respx.mock(assert_all_called=True) as respx_mock:
+        respx_mock.post(settings.backend_responses_url).mock(
+            return_value=Response(
+                400,
+                text=response_body,
+                headers={"content-type": "application/json"},
+            )
+        )
+        with TestClient(app) as client:
+            response = client.post(
+                "/v1/responses",
+                content='{"model":"gpt-5.4","input":"hello"}',
+                headers={"Content-Type": "application/json"},
+            )
+
+    assert response.status_code == 400
+    assert response.text == response_body
+    assert response.json()["error"]["type"] == "invalid_request_error"
+
+
 def test_openai_non_streaming_backend_error_maps_to_openai_error(tmp_path: Path) -> None:
     auth_path = tmp_path / "auth.json"
     write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})

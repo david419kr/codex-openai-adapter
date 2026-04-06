@@ -102,7 +102,9 @@ PORT=11434
 - `GET /models`
 - `GET /v1/models`
 - `GET /api/version`
+- `POST /responses`
 - `POST /chat/completions`
+- `POST /v1/responses`
 - `POST /v1/chat/completions`
 - `POST /api/chat`
 - `POST /api/generate`
@@ -113,7 +115,9 @@ OpenAI 호환:
 
 - `GET /models`
 - `GET /v1/models`
+- `POST /responses`
 - `POST /chat/completions`
+- `POST /v1/responses`
 - `POST /v1/chat/completions`
 
 Ollama 호환:
@@ -204,6 +208,19 @@ curl -N -X POST http://localhost:8888/v1/chat/completions \
   }'
 ```
 
+OpenAI Responses pass-through 요청:
+
+```bash
+curl -X POST http://localhost:8888/v1/responses \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ENTER_YOUR_DESIRED_API_KEY_HERE" \
+  -d '{
+    "model": "gpt-5.4",
+    "input": "Hello!",
+    "store": false
+  }'
+```
+
 Ollama 호환 요청:
 
 ```bash
@@ -242,5 +259,6 @@ uv run --extra dev pytest
 
 ## 참고
 
+- `POST /responses`와 `POST /v1/responses`는 들어온 OpenAI Responses 요청 body를 chat completions나 Ollama 형식으로 변환하지 않고 그대로 Codex backend로 전달합니다. upstream 응답도 raw JSON이든 SSE 스트림이든 그대로 relay합니다.
 - Ollama 호환 요청은 선택적 `think` 파라미터를 받습니다: `true`, `false`, `none`, `low`, `medium`, `high`, `xhigh`. `true`는 `medium`으로 매핑되고, `false`와 `none`은 동일하게 처리됩니다.
 - `temperature`는 effective reasoning이 `none`일 때의 `gpt-5.4` base-model 요청에서만 동작 보장을 합니다. 다른 동적 모델들도 현재는 같은 일반 규칙으로 처리되지만, 그 동작은 best-effort이며 보장되지 않습니다.
