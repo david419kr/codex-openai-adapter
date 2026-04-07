@@ -100,7 +100,10 @@ def test_openai_responses_passthrough_route_preserves_json_body_and_headers(
     settings = build_settings(auth_path)
     app = create_app(settings)
 
-    request_body = '{\n  "model": "gpt-5.4",\n  "input": "hello"\n}'
+    request_body = (
+        '{\n  "model": "gpt-5.4",\n  "input": "hello",\n'
+        '  "reasoning": {"effort": "high"}\n}'
+    )
     response_body = '{"id":"resp_123","object":"response","status":"completed"}'
 
     with respx.mock(assert_all_called=True) as respx_mock:
@@ -139,6 +142,68 @@ def test_openai_responses_passthrough_route_preserves_json_body_and_headers(
     assert route.calls.last.request.headers["user-agent"] == "OpenAI/Python 1.0"
 
 
+def test_openai_responses_passthrough_defaults_missing_reasoning_to_xhigh(
+    tmp_path: Path,
+) -> None:
+    auth_path = tmp_path / "auth.json"
+    write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})
+    settings = build_settings(auth_path)
+    app = create_app(settings)
+
+    with respx.mock(assert_all_called=True) as respx_mock:
+        route = respx_mock.post(settings.backend_responses_url).mock(
+            return_value=Response(
+                200,
+                text='{"id":"resp_123"}',
+                headers={"content-type": "application/json"},
+            )
+        )
+        with TestClient(app) as client:
+            response = client.post(
+                "/v1/responses",
+                content='{"model":"gpt-5.4","input":"hello"}',
+                headers={"Content-Type": "application/json"},
+            )
+
+    assert response.status_code == 200
+    assert json.loads(route.calls.last.request.content.decode("utf-8")) == {
+        "model": "gpt-5.4",
+        "input": "hello",
+        "reasoning": {"effort": "xhigh"},
+    }
+
+
+def test_openai_responses_passthrough_defaults_empty_reasoning_effort_to_xhigh(
+    tmp_path: Path,
+) -> None:
+    auth_path = tmp_path / "auth.json"
+    write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})
+    settings = build_settings(auth_path)
+    app = create_app(settings)
+
+    with respx.mock(assert_all_called=True) as respx_mock:
+        route = respx_mock.post(settings.backend_responses_url).mock(
+            return_value=Response(
+                200,
+                text='{"id":"resp_123"}',
+                headers={"content-type": "application/json"},
+            )
+        )
+        with TestClient(app) as client:
+            response = client.post(
+                "/v1/responses",
+                content='{"model":"gpt-5.4","input":"hello","reasoning":{"summary":"auto","effort":""}}',
+                headers={"Content-Type": "application/json"},
+            )
+
+    assert response.status_code == 200
+    assert json.loads(route.calls.last.request.content.decode("utf-8")) == {
+        "model": "gpt-5.4",
+        "input": "hello",
+        "reasoning": {"summary": "auto", "effort": "xhigh"},
+    }
+
+
 def test_openai_responses_passthrough_route_preserves_sse_stream(tmp_path: Path) -> None:
     auth_path = tmp_path / "auth.json"
     write_auth_file(auth_path, {"OPENAI_API_KEY": "backend_key"})
@@ -161,7 +226,7 @@ def test_openai_responses_passthrough_route_preserves_sse_stream(tmp_path: Path)
         with TestClient(app) as client:
             response = client.post(
                 "/v1/responses",
-                content='{"model":"gpt-5.4","input":"hello","stream":true}',
+                content='{"model":"gpt-5.4","input":"hello","stream":true,"reasoning":{"effort":"high"}}',
                 headers={
                     "Content-Type": "application/json",
                     "Accept": "text/event-stream",
@@ -171,7 +236,10 @@ def test_openai_responses_passthrough_route_preserves_sse_stream(tmp_path: Path)
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
     assert response.text == backend_body
-    assert route.calls.last.request.content == b'{"model":"gpt-5.4","input":"hello","stream":true}'
+    assert (
+        route.calls.last.request.content
+        == b'{"model":"gpt-5.4","input":"hello","stream":true,"reasoning":{"effort":"high"}}'
+    )
 
 
 def test_openai_responses_passthrough_route_preserves_backend_error(tmp_path: Path) -> None:

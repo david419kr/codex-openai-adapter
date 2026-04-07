@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from contextlib import suppress
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from datetime import UTC, datetime
@@ -189,6 +190,10 @@ class ProxyService:
         request_body: bytes,
         incoming_headers: Mapping[str, str] | None = None,
     ) -> httpx.Response:
+        request_body = apply_default_reasoning_effort_to_responses_body(
+            request_body,
+            default_effort="xhigh",
+        )
         return await self._backend_client.open_responses_passthrough(
             request_body,
             incoming_headers=incoming_headers,
@@ -364,6 +369,65 @@ async def maybe_aclose_async_iterator(iterator: object) -> None:
     aclose = getattr(iterator, "aclose", None)
     if callable(aclose):
         await aclose()
+
+
+def apply_default_reasoning_effort_to_responses_body(
+    request_body: bytes,
+    *,
+    default_effort: str,
+) -> bytes:
+    try:
+        payload = json.loads(request_body)
+    except (TypeError, ValueError):
+        return request_body
+
+    if not isinstance(payload, dict):
+        return request_body
+
+    updated_payload = with_default_reasoning_effort(payload, default_effort=default_effort)
+    if updated_payload is payload:
+        return request_body
+
+    return json.dumps(
+        updated_payload,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+
+def with_default_reasoning_effort(
+    payload: dict[str, Any],
+    *,
+    default_effort: str,
+) -> dict[str, Any]:
+    reasoning = payload.get("reasoning")
+
+    if reasoning is None:
+        updated_payload = dict(payload)
+        updated_payload["reasoning"] = {"effort": default_effort}
+        return updated_payload
+
+    if isinstance(reasoning, str):
+        if reasoning.strip():
+            return payload
+        updated_payload = dict(payload)
+        updated_payload["reasoning"] = {"effort": default_effort}
+        return updated_payload
+
+    if isinstance(reasoning, dict):
+        effort = reasoning.get("effort")
+        if isinstance(effort, str) and effort.strip():
+            return payload
+        if effort is not None and not isinstance(effort, str):
+            return payload
+
+        updated_payload = dict(payload)
+        updated_reasoning = dict(reasoning)
+        updated_reasoning["effort"] = default_effort
+        updated_payload["reasoning"] = updated_reasoning
+        return updated_payload
+
+    return payload
 
 
 HEARTBEAT_SENTINEL = object()

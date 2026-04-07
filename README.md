@@ -262,5 +262,6 @@ uv run --extra dev pytest
 ## Notes
 
 - `POST /responses` and `POST /v1/responses` forward the incoming OpenAI Responses request body to the Codex backend without converting it to chat completions or Ollama format. The upstream response body is also relayed as-is, including raw JSON and SSE streams.
+- On the pass-through Responses routes, if `reasoning.effort` is missing or empty, the proxy fills it with `xhigh` before forwarding the request.
 - Ollama-compatible requests accept an optional `think` parameter: `true`, `false`, `none`, `low`, `medium`, `high`, `xhigh`. `true` maps to `medium`, and `false` and `none` are treated the same.
 - `temperature` is guaranteed only for `gpt-5.4` base-model requests when effective reasoning is `none`. Other dynamically discovered models currently follow the same general rule on a best-effort basis, but that behavior is not guaranteed.
